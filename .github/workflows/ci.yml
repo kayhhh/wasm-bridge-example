@@ -29,7 +29,7 @@ jobs:
       - uses: DeterminateSystems/magic-nix-cache-action@main
       - uses: Swatinem/rust-cache@v2
 
-      - run: nix develop -c cargo component build -p guest --target wasm32-unknown-unknown
+      - run: nix develop -c cargo component build -p guest
 
       - run: nix develop -c cargo clippy --fix --no-deps
       - run: nix develop -c cargo fmt --all
