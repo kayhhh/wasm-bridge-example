@@ -38,7 +38,7 @@ pub async fn run_test(component_bytes: &[u8]) -> Result<()> {
     let engine = Engine::new(&config).unwrap();
     let mut store = Store::new(&engine, State { table, wasi });
 
-    let component = Component::new_safe(&store.engine(), &component_bytes)
+    let component = Component::new_safe(store.engine(), &component_bytes)
         .await
         .unwrap();
 
