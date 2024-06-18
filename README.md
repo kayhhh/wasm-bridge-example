@@ -5,7 +5,7 @@
 First build the guest WASM using cargo-component.
 
 ```bash
-cargo component build -p guest --target wasm32-unknown-unkown
+cargo component build -p guest
 ```
 
 Then run the native build with:
