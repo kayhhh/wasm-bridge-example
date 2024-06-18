@@ -3,15 +3,11 @@ use wasm_bridge::{
     component::{Component, Linker},
     Config, Engine, Result, Store,
 };
-
-use wasm_bridge_wasi::*;
+use wasm_bridge_wasi::{add_to_linker_async, ResourceTable, WasiCtx, WasiCtxBuilder, WasiView};
 
 wasm_bridge::component::bindgen!({
     path: "../protocol.wit",
-    world: "wit-imports",
-    async: {
-        only_imports: [],
-    },
+    async: true
 });
 
 struct State {
@@ -29,19 +25,6 @@ impl WasiView for State {
     }
 }
 
-impl WitImportsImports for State {
-    fn add_one(&mut self, num: i32) -> Result<i32> {
-        info!("adding one");
-        Ok(num + 1)
-    }
-
-    fn push_string(&mut self, mut strings: Vec<String>, a: String) -> Result<Vec<String>> {
-        info!("pushing string");
-        strings.push(a);
-        Ok(strings)
-    }
-}
-
 pub async fn run_test(component_bytes: &[u8]) -> Result<()> {
     info!("Running test...");
 
@@ -50,7 +33,7 @@ pub async fn run_test(component_bytes: &[u8]) -> Result<()> {
     config.async_support(true);
 
     let table = ResourceTable::new();
-    let wasi = WasiCtxBuilder::new().build();
+    let wasi = WasiCtxBuilder::new().inherit_stdout().build();
 
     let engine = Engine::new(&config).unwrap();
     let mut store = Store::new(&engine, State { table, wasi });
@@ -61,20 +44,19 @@ pub async fn run_test(component_bytes: &[u8]) -> Result<()> {
 
     let mut linker = Linker::new(store.engine());
     add_to_linker_async(&mut linker).unwrap();
-    WitImports::add_to_linker(&mut linker, |data| data).unwrap();
 
-    let (instance, _) = WitImports::instantiate_async(&mut store, &component, &linker)
+    let (instance, _) = MyWorld::instantiate_async(&mut store, &component, &linker)
         .await
         .unwrap();
 
-    let result = instance.call_add_three(&mut store, 5).await.unwrap();
-    assert_eq!(result, 8);
+    let interface = instance.example_schema_my_interface().my_res();
 
-    let result = instance
-        .call_push_strings(&mut store, &["a".into(), "b".into()], "c", "d")
+    let script = interface.call_constructor(&mut store).await.unwrap();
+
+    interface
+        .call_my_method(&mut store, script, 1.0)
         .await
         .unwrap();
-    assert_eq!(result, vec!["a", "b", "c", "d"]);
 
     Ok(())
 }

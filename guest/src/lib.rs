@@ -1,23 +1,26 @@
+use exports::example::schema::my_interface::{Guest, GuestMyRes};
+
 wit_bindgen::generate!({
     path: "../protocol.wit",
-    world: "wit-imports",
 });
+
+struct MyRes;
+
+impl GuestMyRes for MyRes {
+    fn new() -> Self {
+        println!("NEW");
+        Self
+    }
+
+    fn my_method(&self, _value: f32) {
+        println!("METHOD");
+    }
+}
 
 struct GuestImpl;
 
 impl Guest for GuestImpl {
-    fn add_three(num: i32) -> i32 {
-        let num = add_one(num);
-        let num = add_one(num);
-        let num = add_one(num);
-        num
-    }
-
-    fn push_strings(strings: Vec<String>, a: String, b: String) -> Vec<String> {
-        let strings = push_string(&strings, &a);
-        let strings = push_string(&strings, &b);
-        strings
-    }
+    type MyRes = MyRes;
 }
 
 export!(GuestImpl);

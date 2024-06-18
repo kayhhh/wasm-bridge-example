@@ -1,6 +1,6 @@
 use tracing::info;
 
-const BYTES: &[u8] = include_bytes!("../../target/wasm32-unknown-unknown/debug/guest.wasm");
+const BYTES: &[u8] = include_bytes!("../../target/wasm32-wasi/debug/guest.wasm");
 
 #[cfg(target_family = "wasm")]
 #[wasm_bindgen::prelude::wasm_bindgen(start)]
