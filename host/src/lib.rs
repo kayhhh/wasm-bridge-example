@@ -50,11 +50,10 @@ pub async fn run_test(component_bytes: &[u8]) -> Result<()> {
         .unwrap();
 
     let interface = instance.example_schema_my_interface().my_res();
-
-    let script = interface.call_constructor(&mut store).await.unwrap();
+    let res = interface.call_constructor(&mut store).await.unwrap();
 
     interface
-        .call_my_method(&mut store, script, 1.0)
+        .call_my_method(&mut store, res, 1.0)
         .await
         .unwrap();
 
